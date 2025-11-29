@@ -1,0 +1,33 @@
+name: Build and Publish Keycloak Image
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: stackdrift
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Codeberg Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: codeberg.org
+          username: stackdrift
+          password: ${{ secrets.REGISTRY_DEPLOY_KEY }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: Dockerfile
+          push: true
+          tags: |
+            codeberg.org/stackdrift-images/keycloak:latest
+            codeberg.org/stackdrift-images/keycloak:26.3
