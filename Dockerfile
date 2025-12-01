@@ -1,4 +1,4 @@
-FROM registry.access.redhat.com/ubi9 as jar-builder
+FROM registry.access.redhat.com/ubi9 AS jar-builder
 
 RUN dnf install -y zip && dnf clean all
 
@@ -6,7 +6,7 @@ COPY keycloak-scripts/ /tmp/keycloak-scripts/
 RUN cd /tmp/keycloak-scripts && \
     zip -r /opt/keycloak-scripts.jar .
 
-FROM quay.io/keycloak/keycloak:26.3 as builder
+FROM quay.io/keycloak/keycloak:26.3 AS builder
 
 ENV KC_HEALTH_ENABLED=true
 ENV KC_METRICS_ENABLED=true
