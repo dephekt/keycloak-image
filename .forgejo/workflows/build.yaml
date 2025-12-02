@@ -22,47 +22,10 @@ on:
 
 jobs:
   build:
-    runs-on: stackdrift
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Install Docker CLI
-        run: |
-          set -e
-          if ! command -v docker &> /dev/null; then
-            apt-get update
-            apt-get install -y ca-certificates curl
-            install -m 0755 -d /etc/apt/keyrings
-            curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc
-            chmod a+r /etc/apt/keyrings/docker.asc
-            echo \
-              "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/debian \
-              $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
-              tee /etc/apt/sources.list.d/docker.list > /dev/null
-            apt-get update
-            apt-get install -y docker-ce-cli
-          else
-            echo "Docker CLI is already installed."
-          fi
-
-      - name: Login to Codeberg Container Registry
-        if: github.event_name != 'pull_request'
-        uses: docker/login-action@v3
-        with:
-          registry: codeberg.org
-          username: stackdrift
-          password: ${{ secrets.REGISTRY_DEPLOY_KEY }}
-
-      - name: Build and push
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: Dockerfile
-          push: ${{ github.event_name != 'pull_request' }}
-          tags: |
-            codeberg.org/stackdrift-images/keycloak:latest
-            codeberg.org/stackdrift-images/keycloak:26.3
+    uses: stackdrift-images/ci-templates/.forgejo/workflows/docker-build.yaml@main
+    with:
+      image_name: codeberg.org/stackdrift-images/keycloak
+      upstream_image_search: quay.io/keycloak/keycloak
+      upstream_name_short: keycloak
+    secrets:
+      registry_password: ${{ secrets.REGISTRY_DEPLOY_KEY }}
