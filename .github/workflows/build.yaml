@@ -1,0 +1,35 @@
+name: Build and Publish Keycloak Image
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - "v*"
+    paths:
+      - "Dockerfile"
+      - "keycloak-scripts/**"
+      - "keycloak-providers/**"
+      - "secrets2env.sh"
+      - ".github/workflows/build.yaml"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "Dockerfile"
+      - "keycloak-scripts/**"
+      - "keycloak-providers/**"
+      - "secrets2env.sh"
+      - ".github/workflows/build.yaml"
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build:
+    uses: dephekt/ci-templates/.github/workflows/docker-build.yml@main
+    with:
+      image_name: ghcr.io/dephekt/keycloak-image
+      upstream_image_search: quay.io/keycloak/keycloak
+      upstream_name_short: keycloak
